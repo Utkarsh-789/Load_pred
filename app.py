@@ -52,6 +52,8 @@ with col2:
 # Prediction
 # -------------------------------
 if st.button("🔍 Predict Loan Status"):
+
+    # Step 1: Raw input
     input_data = pd.DataFrame({
         "Gender": [gender],
         "Married": [married],
@@ -66,20 +68,36 @@ if st.button("🔍 Predict Loan Status"):
         "Property_Area": [property_area]
     })
 
-    try:
-        prediction = model.predict(input_data)[0]
+    # Step 2: Feature engineering (same as training)
+    input_data["LoanAmount_log"] = input_data["LoanAmount"].apply(
+        lambda x: 0 if x == 0 else np.log(x)
+    )
 
-        if prediction == 1:
-            st.success("✅ Loan Approved")
-        else:
-            st.error("❌ Loan Not Approved")
+    # Step 3: Drop unused column
+    input_data.drop("LoanAmount", axis=1, inplace=True)
 
-    except Exception as e:
-        st.error("Prediction failed. Ensure preprocessing matches training.")
-        st.write(e)
+    # Step 4: One-hot encoding
+    input_data = pd.get_dummies(input_data)
 
+    # Step 5: Align with training columns
+    model_features = model.feature_names_in_
+
+    for col in model_features:
+        if col not in input_data.columns:
+            input_data[col] = 0
+
+    input_data = input_data[model_features]
+
+    # Step 6: Prediction
+    prediction = model.predict(input_data)[0]
+
+    if prediction == 1:
+        st.success("✅ Loan Approved")
+    else:
+        st.error("❌ Loan Not Approved")
 # -------------------------------
 # Footer
 # -------------------------------
 st.markdown("---")
 st.caption("Loan Prediction System • Streamlit App")
+
