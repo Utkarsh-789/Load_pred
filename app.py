@@ -1,3 +1,5 @@
+import numpy as np
+
 import streamlit as st
 import pandas as pd
 import joblib
@@ -100,4 +102,5 @@ if st.button("🔍 Predict Loan Status"):
 # -------------------------------
 st.markdown("---")
 st.caption("Loan Prediction System • Streamlit App")
+
 
