@@ -20,24 +20,29 @@ loan_term = st.number_input("Loan Amount Term (in days)", min_value=0)
 credit_history = st.selectbox("Credit History", [1.0, 0.0])
 property_area = st.selectbox("Property Area", ["Urban", "Semiurban", "Rural"])
 
-# Predict button
 if st.button("Predict"):
+    # 🔹 Convert inputs to model format (ENCODING)
     input_data = pd.DataFrame({
-        "Gender": [gender],
-        "Married": [married],
-        "Dependents": [dependents],
-        "Education": [education],
-        "Self_Employed": [self_employed],
+        "Gender": [1 if gender == "Male" else 0],
+        "Married": [1 if married == "Yes" else 0],
+        "Dependents": [3 if dependents == "3+" else int(dependents)],
+        "Education": [1 if education == "Graduate" else 0],
+        "Self_Employed": [1 if self_employed == "Yes" else 0],
         "ApplicantIncome": [applicant_income],
         "CoapplicantIncome": [coapplicant_income],
         "LoanAmount": [loan_amount],
         "Loan_Amount_Term": [loan_term],
         "Credit_History": [credit_history],
-        "Property_Area": [property_area]
+        "Property_Area": [
+            2 if property_area == "Urban"
+            else 1 if property_area == "Semiurban"
+            else 0
+        ]
     })
 
-    # # Preprocess inputs like in training
-    # input_data = preprocess(input_data)
+    prediction = model.predict(input_data)[0]
 
-    pred = model.predict(input_data)[0]
-    st.success(f"💡 Prediction: {'Approved' if pred == 'Y' else 'Not Approved'}")
+    if prediction == 'Y' or prediction == 1:
+        st.success("✅ Loan Approved")
+    else:
+        st.error("❌ Loan Not Approved")
